@@ -126,7 +126,10 @@ function import_repository() {
         # Git clone (SSH key must be provided to prove authorization to clone private or restricted repositories)
         $git_path clone --config core.sshCommand="ssh -i ~/.ssh/$identity" "$source" "$destination"
     fi
-    # TODO: save script location so the shell returns to the original workdir after this cd call
+    # Once the script finishes, any changes made to the working directory are lost because the script runs in a separate subshell (its own context),
+    # so there's no need to get the save script location beforehand (this is -not- the default behavior on Windows CMD, unless scripts are run with START on a separate window)
+    # To change the directory for the current shell session, source the script instead of executing it: this runs it in the current shell environment rather than a subshell,
+    # using: "source script.sh" or ". script.sh"
     cd "$destination"
     # Calling git commands inside a folder that is not a git repository is ineffectual and harmless, otherwise, everything works as intended
     $git_path config --local core.sshCommand "ssh -i ~/.ssh/$identity"
