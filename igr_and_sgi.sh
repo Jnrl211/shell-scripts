@@ -2,6 +2,21 @@
 # 
 # [I]mport [G]itHub [r]epository and [s]et [G]itHub SSH [i]dentity script
 # 
+# A shell script to easily clone Git repositories to the local machine and select a custom SSH identity for the repository
+# Setting up multiple SSH keys to use multiple GitHub accounts on a single machine can turn out more difficult than expected, and requires setting up Git differently,
+# this script makes the process of using multiple GitHub accounts easier, without having to modify Git config files or call Git commands with a custom SSH command every time.
+# 
+# Basically, you must set up your SSH keys as usual: generate your public and private SSH keys for each GitHub account you are using and associate each pair with each account,
+# Then, for each account, also addressed as "identity" in this file, you must create the following files in your "~/.ssh" or "%USERPROFILE%\.ssh" folder:
+# - a .username file named as your identity, containing your GitHub username
+# - a .noreplyemail file named as your identity, containing your GitHub no-reply e-mail
+# Your .ssh directory should look like this:
+# - account1 (private SSH key associated with your GitHub account)
+# - account1.pub (public SSH key associated with your GitHub account)
+# - account1.username (containing your GitHub user name in the first line of the file)
+# - account1.noreplyemail (containing your GitHub no-reply e-mail in the first line of the file)
+# - (and a similar set of files for each extra GitHub account you have)
+# 
 # Arguments:
 # - Repository remote SSH URL (cloning from HTTP causes a variety of issues, and only cloning from SSH allows authentication based on SSH keys)
 #   SSH requires more initial setup but provides a more seamless and secure authentication experience once configured. Preferred for frequent interactions with the repository
@@ -18,7 +33,7 @@
 function test_source() {
     local source="$1"
     # This regex checks whether a GitHub repository URL is valid based on -some- user name and repository name restrictions
-    # assuming the original SSH user and host name are used (git@github.com)
+    # assuming the original SSH user and host name are used (git@github.com) straight from the "<> Code" button of the repository
     if [[ $(echo "$source" | grep -E "^git@github\.com:[a-zA-Z0-9-]{1,39}/[a-zA-Z0-9._-]{1,100}\.git$") == "" ]]; then
         echo "Failed to parse source repository address, please provide a valid SSH URL"
         echo "(verify the URL points to a valid GitHub repository, uses user and host name \"git@github.com\", and ends in \".git\")"
