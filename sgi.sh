@@ -89,12 +89,11 @@ function set_repository_identity() {
     return $?
 }
 
-# Replace this variable with the executable path of Git if it is not accessible from its shell alias
-# TODO: add code to replace this value with optional argument provided by the user
+# This path is overriden if the user provides a custom Git path or Git alias; you may have to pass this argument if you use a portable Git installation
 git_path="git"
 is_valid_identity=1
 is_valid_destination=1
-options=$(getopt -o hi:d: -l help,identity:,destination: -- "$@")
+options=$(getopt -o hi:d:g: -l help,identity:,destination:,git_path: -- "$@")
 if [ $? -ne 0 ]; then
     echo "Failed to parse options, exiting"
     exit 1
@@ -112,9 +111,10 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)
             # Customize this help message if more arguments are added to the script
-            echo "Usage: $0 [-h|--help] [-i|--identity <identity>] [-d|--destination <destination>]"
+            echo "Usage: $0 [-h|--help] [-i|--identity <identity>] [-d|--destination <destination>] [-g|--git_path <git_path>]"
             echo "- identity - GitHub SSH identity"
             echo "- destination - Local repository path"
+            echo "- git_path - (Optional) Git path or Git alias"
             exit 0
             ;;
         -i|--identity)
@@ -127,6 +127,11 @@ while [[ $# -gt 0 ]]; do
             destination=$2
             test_destination "$destination"
             is_valid_destination=$?
+            shift
+            ;;
+        -g|--git_path)
+            # This does not check whether the passed git path or git alias is valid, as the user you have to make sure you give it a valid argument
+            git_path=$2
             shift
             ;;
         --)
@@ -152,4 +157,4 @@ if [ $is_valid_identity -ne 0 ] || [ $is_valid_destination -ne 0 ]; then
     exit 1
 fi
 set_repository_identity "$identity" "$destination" "$git_path"
-return $?
+exit $?

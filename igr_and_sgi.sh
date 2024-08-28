@@ -140,8 +140,7 @@ function import_repository() {
     return $?
 }
 
-# Replace this variable with the executable path of Git if it is not accessible from its shell alias
-# TODO: add code to replace this value with optional argument provided by the user
+# This path is overriden if the user provides a custom Git path or Git alias; you may have to pass this argument if you use a portable Git installation
 git_path="git"
 # This array contains file names that are used by default or are standard for SSH configurations and utilities, 
 # to ensure that custom key files don't inadvertently replace or conflict with important files in the ~/.ssh directory
@@ -150,7 +149,7 @@ is_valid_source=1
 is_valid_identity=1
 is_valid_destination=1
 # The list of arguments $@ passed to getopt must be in double quotes so arguments containing blank spaces are parsed correctly. Single quotes save literal strings, not expressions
-options=$(getopt -o hs:i:d: -l help,source:,identity:,destination: -- "$@")
+options=$(getopt -o hs:i:d:g: -l help,source:,identity:,destination:,git_path: -- "$@")
 if [ $? -ne 0 ]; then
     echo "Failed to parse options, exiting"
     exit 1
@@ -193,10 +192,11 @@ while [[ $# -gt 0 ]]; do
     case "$1" in
         -h|--help)
             # Customize this help message if more arguments are added to the script
-            echo "Usage: $0 [-h|--help] [-s|--source <source>] [-i|--identity <identity>] [-d|--destination <destination>]"
+            echo "Usage: $0 [-h|--help] [-s|--source <source>] [-i|--identity <identity>] [-d|--destination <destination>] [-g|--git_path <git_path>]"
             echo "- source - GitHub remote repository SSH URL"
             echo "- identity - GitHub SSH identity"
             echo "- destination - Local repository destination path"
+            echo "- git_path - (Optional) Git path or Git alias"
             exit 0
             ;;
         -s|--source)
@@ -243,4 +243,4 @@ if [ $is_valid_source -ne 0 ] || [ $is_valid_identity -ne 0 ] || [ $is_valid_des
     exit 1
 fi
 import_repository "$source" "$identity" "$destination" "$git_path"
-return $?
+exit $?
