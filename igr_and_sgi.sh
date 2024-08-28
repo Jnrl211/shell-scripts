@@ -22,7 +22,7 @@
 #   SSH requires more initial setup but provides a more seamless and secure authentication experience once configured. Preferred for frequent interactions with the repository
 # - Identity name (script will look for 4 files with this name: one for the user name, another for the no reply e-mail, and two more for the public and private SSH keys
 # - Repository Local directory (if destination doesn't exist, will clone it, otherwise, will clone to a temporary location and then cut-paste its contents to the extant directory)
-# 
+
 # In the function definition scope, positional arguments refer to arguments passed to the function, not to the positional arguments of the script
 # Local variables in functions take precedence over global variables in functions
 # Bash functions don't return values directly, the mechanism differs from many programming languages,
@@ -50,7 +50,7 @@ function test_identity() {
     local user_name_file="$1.username"
     local user_no_reply_email_file="$1.noreplyemail"
     local is_failed=0
-    # TODO: cleanup, also add check for forbidden names
+    # TODO: add check for forbidden names
     # Checks whether the identity files of the selected identity exist in the ~/.ssh folder
     # grep produces a multi-line string containing the file names that match the regex: each regex below is designed so grep only finds a single file if it exists, using ERE
     # - ERE (Extended Regular Expression flavor), adding -E option to grep (preferred): "^id([\.]{1}[a-zA-Z0-9]*){0,1}$"
@@ -136,8 +136,10 @@ function import_repository() {
     # cat is used to concatenate the contents of each file and print them to console, wrapped in an expression so cat output expands to the file content
     $git_path config --local user.name "$(cat ~/.ssh/$identity.username)"
     $git_path config --local user.email "$(cat ~/.ssh/$identity.noreplyemail)"
-    # TODO: return the last exit code? or check each git call to catch any non-zero exit codes
+    # Return the last exit code: if git succeeds, it should return exit code 0 as usual, if it fails, it will produce a non-zero exit code
+    return $?
 }
+
 # Replace this variable with the executable path of Git if it is not accessible from its shell alias
 # TODO: add code to replace this value with optional argument provided by the user
 git_path="git"
@@ -241,3 +243,4 @@ if [ $is_valid_source -ne 0 ] || [ $is_valid_identity -ne 0 ] || [ $is_valid_des
     exit 1
 fi
 import_repository "$source" "$identity" "$destination" "$git_path"
+return $?
