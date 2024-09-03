@@ -117,7 +117,8 @@ function import_repository() {
         $git_path clone --config core.sshCommand="ssh -i ~/.ssh/$identity" "$source" "$destination"
         # copy contents from local tmpbkup folder and paste them (overwriting) to Git folder (all configs are done later), all files (normal) and all files starting with .
         # verbose
-        mv -f -v "$destination-tmpbkup/{*,.*}" "$destination"
+        # (wilcards must be out of quotes, or they won't be parsed as wildcards properly)
+        mv -f -v "$destination"-tmpbkup/{*,.*} "$destination"
         # remove temporary backup local repository folder after all contents have been moved out of it (-d only removes empty directories)
         # verbose
         rm -d -v "$destination-tmpbkup"
